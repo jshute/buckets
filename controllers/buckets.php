@@ -3,6 +3,14 @@
 class buckets extends controller {
 	public $layout = 'layouts/column2';
 	
+	public function filter($action) {
+		if (auth::check('user')) {
+			return true;
+		} else {
+			sq::redirect(sq::base());
+		}
+	}
+	
 	public function indexAction() {
 		$this->layout->categories = sq::model('categories')->read();
 		$this->layout->content = sq::view('buckets/manage');
