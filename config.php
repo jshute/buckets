@@ -1,7 +1,7 @@
 <?php
 
 // Config settings
-$config = array(
+return array(
 	'debug' => true,
 	'sql' => array(
 		'dbname'   => 'app',
