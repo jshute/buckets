@@ -54,26 +54,26 @@ class site extends controller {
 		$this->layout->content = sq::view('forms/entry');
 	}
 	
-	public function deleteEntryAction() {
-		if (url::post()) {
-			sq::model('entries')
-				->where(url::post('id'))
-				->delete();
-				
-			sq::model('relations')
-				->where(array(
-					'related_from' => url::post('id'),
-					'related_to' => url::post('id'
-				)), 'OR')
-				->delete();
-				
-			sq::redirect(sq::base());
-		} else {
-			$this->layout->entry = sq::model('entries')
-				->where(url::get('id'))
-				->read();
-			$this->layout->content = sq::view('forms/delete');
-		}
+	public function deleteEntryPostAction() {
+		sq::model('entries')
+			->where(url::post('id'))
+			->delete();
+			
+		sq::model('relations')
+			->where(array(
+				'related_from' => url::post('id'),
+				'related_to' => url::post('id'
+			)), 'OR')
+			->delete();
+			
+		sq::redirect(sq::base());
+	}
+	
+	public function deleteEntryGetAction()
+		$this->layout->entry = sq::model('entries')
+			->where(url::get('id'))
+			->read();
+		$this->layout->content = sq::view('forms/delete');
 	}
 	
 	public function editEntryAction() {
