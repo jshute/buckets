@@ -69,7 +69,7 @@ class site extends controller {
 		sq::redirect(sq::base());
 	}
 	
-	public function deleteEntryGetAction()
+	public function deleteEntryGetAction() {
 		$this->layout->entry = sq::model('entries')
 			->where(url::get('id'))
 			->read();
