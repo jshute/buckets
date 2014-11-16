@@ -160,7 +160,7 @@ class site extends controller {
 			->where($id)
 			->read()
 			->belongsTo('categories');
-			
+		
 		$this->layout->entry = $entry;
 		$this->layout->related = $this->getRelatedEntries();
 		
