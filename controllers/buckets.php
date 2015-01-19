@@ -20,18 +20,15 @@ class buckets extends controller {
 		);
 	}
 	
-	public function editAction() {
-		if (url::post()) {
-			sq::model('categories')
-				->where(url::post('id'))
-				->set(url::post('save'))
-				->update();
-				
-			sq::redirect(sq::base().'buckets');
-		}
+	public function editPostAction($categories) {
+		$categories->update();
 		
+		sq::redirect(sq::base().'buckets');
+	}
+	
+	public function editGetAction($id) {	
 		$category = sq::model('categories')
-			->where(url::get('id'))
+			->where($id)
 			->read();
 		$this->layout->category = $category;
 		$this->layout->content = sq::view('forms/bucket');
@@ -41,14 +38,13 @@ class buckets extends controller {
 		);
 	}
 	
-	public function createAction() {
-		if (url::post()) {
-			sq::model('categories')
-				->create(url::post('save'));
-				
-			sq::redirect(sq::base().'buckets');
-		}
+	public function createPostAction($categories) {
+		$categories->create();
 		
+		sq::redirect(sq::base().'buckets');
+	}
+	
+	public function createGetAction() {
 		$this->layout->category = sq::model('categories')->schema();
 		$this->layout->content = sq::view('forms/bucket');
 	}
