@@ -12,7 +12,7 @@
 	<?=form::label('save[name]', 'Name') ?>
 	<?=form::text('save[name]', $entry->name) ?>
 	<?=form::label('save[categories_id]', 'Bucket') ?>
-	<?=form::single('save[categories_id]', $entry->categories_id, 'categories') ?>
+	<?=form::single('save[categories_id]', 'categories', $entry->categories_id) ?>
 	<?=form::label('save[description]', 'Description') ?>
 	<?=form::blurb('save[description]', $entry->description) ?>
 
