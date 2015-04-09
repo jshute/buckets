@@ -13,7 +13,7 @@ ini_set('error_log', 'error_log');
 
 require_once '../sq/sq.php';
 
-sq::load('/config');
+sq::load('/config/main');
 sq::init();
 
 ?>
