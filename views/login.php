@@ -1,6 +1,4 @@
-<? if (isset($_SESSION['sq-login-attempts']) && $_SESSION['sq-login-attempts']):
-	$this->message = 'Login not recognized. Try again or <a href="'.$base.'get-account">reset your account.</a>';
-endif ?>
+<? $this->message = form::flash() ?>
 <h2>Login to Buckets</h2>
 <form method="post" action="<?=$base ?>auth/login">
 	<?=form::label('username', 'Email') ?>
