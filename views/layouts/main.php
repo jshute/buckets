@@ -6,7 +6,7 @@
 <? self::script($base.'js/scripts.js') ?>
 <? self::$foot = '<script>var base = "'.$base.'";</script>' ?>
 <? self::$title = 'Buckets | The Deckers eCommerce dependency manager.' ?>
-<? if (isset($entry) && url::get('action') == 'details'): ?>
+<? if (isset($entry) && sq::request()->get('action') == 'details'): ?>
 	<? self::$title = $entry->name.' Dependencies | Buckets' ?>
 <? endif ?>
 <header>

@@ -1,13 +1,13 @@
-<? if (url::request('id')): ?>
+<? if (sq::request()->any('id')): ?>
 	<h3>Edit<span class="entry-name"> <?=$entry->name ?></span></h3>
 <? else: ?>
 	<h3>Create New Entry</h3>
 <? endif ?>
 <form method="post" action="">
 	<? $cancelLink = $base ?>
-	<? if (url::request('id')):
-		echo form::hidden('id', url::request('id'));
-		$cancelLink = $base.'details?id='.url::request('id');
+	<? if (sq::request()->any('id')):
+		echo form::hidden('id', sq::request()->any('id'));
+		$cancelLink = $base.'details?id='.sq::request()->any('id');
 	endif ?>
 	<?=form::label('save[name]', 'Name') ?>
 	<?=form::text('save[name]', $entry->name) ?>
@@ -30,7 +30,7 @@ endif;
 ?>
 	<h2>Dependencies of<span class="entry-name"><?=$title ?></span></h2>
 	<?=$this->render('search-list', array('id' => 'edit', 'entries' => $entries)) ?>
-	<? if (!url::request('id')): ?>
+	<? if (!sq::request()->any('id')): ?>
 		<div class="disabled"></div>
 	<? endif ?>
 </div>

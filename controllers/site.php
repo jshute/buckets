@@ -4,7 +4,7 @@ class site extends controller {
 	public $layout = 'layouts/column2';
 	
 	public function filter($action) {
-		if (auth::check('user') || $action == 'login' || $action == 'get-account' || $action == 'confirm-account') {
+		if (sq::auth()->level == 'user' || $action == 'login' || $action == 'get-account' || $action == 'confirm-account') {
 			return true;
 		} else {
 			$this->layout->content = sq::view('content/home');
@@ -35,13 +35,13 @@ class site extends controller {
 	public function createEntryAction() {
 		$entry = sq::model('entries');
 		
-		if (url::post()) {
-			$entry->set(url::post('save'));
+		if (sq::request()->isPost) {
+			$entry->set(sq::request()->post('save'));
 			$entry->created = date('c');
 			$entry->updated = date('c');
 			$entry->create();
 			
-			sq::redirect(sq::base().'edit-entry?id='.$entry->id);
+			sq::response()->redirect(sq::base().'edit-entry?id='.$entry->id);
 		} else {
 			$entry->schema();
 		}
@@ -56,40 +56,40 @@ class site extends controller {
 	
 	public function deleteEntryPostAction() {
 		sq::model('entries')
-			->where(url::post('id'))
+			->where(sq::request()->post('id'))
 			->delete();
 			
 		sq::model('relations')
 			->where(array(
-				'related_from' => url::post('id'),
-				'related_to' => url::post('id'
+				'related_from' => sq::request()->post('id'),
+				'related_to' => sq::request()->post('id'
 			)), 'OR')
 			->delete();
 			
-		sq::redirect(sq::base());
+		sq::response()->redirect(sq::base());
 	}
 	
 	public function deleteEntryGetAction() {
 		$this->layout->entry = sq::model('entries')
-			->where(url::get('id'))
+			->where(sq::request()->get('id'))
 			->read();
 		$this->layout->content = sq::view('forms/delete');
 	}
 	
 	public function editEntryAction() {
 		$entry = sq::model('entries')
-			->where(url::request('id'));
+			->where(sq::request()->any('id'));
 			
 		$this->layout->entries = sq::model('entries')
 			->read()
 			->belongsTo('categories');
 			
-		if (url::post()) {
-			$entry->set(url::post('save'));
+		if (sq::request()->isPost) {
+			$entry->set(sq::request()->post('save'));
 			$entry->updated = date('c');
 			$entry->update();
 			
-			sq::redirect(sq::base().'details?id='.url::request('id'));
+			sq::response()->redirect(sq::base().'details?id='.sq::request()->any('id'));
 		} else {
 			$entry->read();
 		}
@@ -99,11 +99,11 @@ class site extends controller {
 	}
 	
 	public function searchAction() {
-		$query = url::get('q');
-		$cat   = url::get('cat');
-		$id    = url::get('id');
+		$query = sq::request()->get('q');
+		$cat   = sq::request()->get('cat');
+		$id    = sq::request()->get('id');
 		
-		if (url::get('id') && url::get('listId') == 'list') {
+		if (sq::request()->get('id') && sq::request()->get('listId') == 'list') {
 			$entries = $this->getRelatedEntries();
 		} else {
 			$sql = $this->makeQuery();
@@ -114,14 +114,14 @@ class site extends controller {
 		}
 		
 		return sq::view('list', array(
-			'id' => url::get('listId'),
+			'id' => sq::request()->get('listId'),
 			'entries' => $entries
 		));
 	}
 	
 	private function makeQuery($id = false) {
-		$query = url::get('q');
-		$cat = url::get('cat');
+		$query = sq::request()->get('q');
+		$cat = sq::request()->get('cat');
 		
 		$sql = 'SELECT name, id, categories_id FROM entries';
 		if ($query) {
@@ -153,9 +153,7 @@ class site extends controller {
 		return $sql;
 	}
 	
-	public function detailsAction() {
-		$id = url::get('id');
-		
+	public function detailsAction($id) {
 		$entry = sq::model('entries')
 			->where($id)
 			->read()
@@ -174,19 +172,19 @@ class site extends controller {
 	}
 	
 	public function loginAction() {
-		if (auth::check()) {
-			sq::redirect(sq::base());
+		if (sq::auth()->isLoggedIn) {
+			sq::response()->redirect(sq::base());
 		}
 		
 		$this->layout->content = sq::view('login');
 	}
 	
 	public function getAccountAction() {
-		$email = url::post('email');
+		$email = sq::request()->post('email');
 		$validEmail = substr($email, -strlen('@deckers.com')) == '@deckers.com';
 		
-		if (url::post() && $validEmail) {
-			$password = url::post('password');
+		if (sq::request()->isPost && $validEmail) {
+			$password = sq::request()->post('password');
 			
 			$hash = auth::hash($email);
 			
@@ -199,8 +197,8 @@ class site extends controller {
 				'email' => $email,
 				'hashkey' => $hash,
 				'password' => auth::hash($password),
-				'first' => url::post('first'),
-				'last' => url::post('last'),
+				'first' => sq::request()->post('first'),
+				'last' => sq::request()->post('last'),
 				'level' => ''
 			);
 			
@@ -210,19 +208,19 @@ class site extends controller {
 				$user->update($data);
 			}
 			
-			$mailer = sq::component('mailer');
-			$mailer->options['format'] = 'text';
-			$mailer->to = $email;
-			$mailer->subject = 'Confirm Buckets Account';
-			$mailer->link = sq::base().'confirm-account?hash='.$hash;
-			$mailer->textView = 'email/account';
-			$mailer->from = 'noreply@deckers.com';
-			$mailer->send();
+			sq::mailer(array(
+				'to' => $email,
+				'subject' => 'Confirm Buckets Accont',
+				'from' => 'noreply@deckers.com',
+				'test' => sq::view('email/account', array(
+					'link' => sq::base().'confirm-account?hash='.$hash
+				))
+			))->send();
 			
 			$this->layout->message = 'Activation email sent.';
 		}
 		
-		if (url::post() && !$validEmail) {
+		if (sq::request()->isPost && !$validEmail) {
 			$this->layout->message = 'Email Needs to be an @deckers.com address.';
 		}
 		
@@ -231,41 +229,41 @@ class site extends controller {
 	
 	public function confirmAccountAction() {
 		$user = sq::model('users')
-			->where(array('hashkey' => url::get('hash')))
+			->where(array('hashkey' => sq::request()->get('hash')))
 			->limit()
 			->read();
 			
 		$user->level = 'user';
 		$user->update();
 		
-		auth::login($user->email);
+		sq::auth()->login($user->email);
 		
-		sq::redirect(sq::base());
+		sq::response()->redirect(sq::base());
 	}
 	
 	public function toggleRelationAction() {
-		if (url::post('value') == 'true') {
+		if (sq::request()->post('value') == 'true') {
 			sq::model('relations')
-				->where(array('related_from' => url::post('relatedId'), 'related_to' => url::post('currentId')), 'AND')
+				->where(array('related_from' => sq::request()->post('relatedId'), 'related_to' => sq::request()->post('currentId')), 'AND')
 				->delete();
 				
 			sq::model('relations')
-				->where(array('related_from' => url::post('currentId'), 'related_to' => url::post('relatedId')), 'AND')
+				->where(array('related_from' => sq::request()->post('currentId'), 'related_to' => sq::request()->post('relatedId')), 'AND')
 				->delete();
 		} else {
 			$relation = sq::model('relations');
 			$relation->options['prevent-duplicates'] = false;
 			$relation->create(array(
-				'related_from' => url::post('currentId'),
-				'related_to' => url::post('relatedId')
+				'related_from' => sq::request()->post('currentId'),
+				'related_to' => sq::request()->post('relatedId')
 			));
 		}
 		
-		return url::post('value');
+		return sq::request()->post('value');
 	}
 	
 	private function getRelatedEntries() {
-		$id = url::request('id');
+		$id = sq::request()->get('id');
 		
 		$related = sq::model('relations')
 			->where(array('related_from' => $id, 'related_to' => $id), 'OR')

@@ -18,14 +18,14 @@
 $checked = '';
 
 $relations = sq::model('relations')
-	->where(array('related_to' => $item->id, 'related_from' => url::request('id')), 'AND')
+	->where(array('related_to' => $item->id, 'related_from' => sq::request()->any('id')), 'AND')
 	->read();
 
 if (count($relations)) {
 	$checked = 'checked';
 } else {
 	$relations = sq::model('relations')
-		->where(array('related_from' => $item->id, 'related_to' => url::request('id')), 'AND')
+		->where(array('related_from' => $item->id, 'related_to' => sq::request()->any('id')), 'AND')
 		->read();
 
 	if (count($relations)) {
@@ -34,7 +34,7 @@ if (count($relations)) {
 }
 
 ?>
-									<input type="checkbox" <?=$checked ?> data-current-id="<?=url::request('id') ?>" class="row-toggle" name="<?=$item->id ?>"/>
+									<input type="checkbox" <?=$checked ?> data-current-id="<?=sq::request()->any('id') ?>" class="row-toggle" name="<?=$item->id ?>"/>
 								<? endif ?>
 								<?=$item->name ?>
 							</td>

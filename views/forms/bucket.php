@@ -1,5 +1,5 @@
 <?=form::open($category) ?>
-	<? if (url::get('id')): ?>
+	<? if (sq::request()->get('id')): ?>
 		<h3>Edit Bucket<span class="entry-name"> <?=$category->name ?></span></h3>
 	<? else: ?>
 		<h3>Create New Bucket</h3>

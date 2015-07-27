@@ -4,10 +4,10 @@ class buckets extends controller {
 	public $layout = 'layouts/column2';
 	
 	public function filter($action) {
-		if (auth::check('user')) {
+		if (sq::auth()->level == 'user') {
 			return true;
 		} else {
-			sq::redirect(sq::base());
+			sq::response()->redirect(sq::base());
 		}
 	}
 	
@@ -23,7 +23,7 @@ class buckets extends controller {
 	public function editPostAction($categories) {
 		$categories->update();
 		
-		sq::redirect(sq::base().'buckets');
+		sq::response()->redirect(sq::base().'buckets');
 	}
 	
 	public function editGetAction($id) {	
@@ -41,7 +41,7 @@ class buckets extends controller {
 	public function createPostAction($categories) {
 		$categories->create();
 		
-		sq::redirect(sq::base().'buckets');
+		sq::response()->redirect(sq::base().'buckets');
 	}
 	
 	public function createGetAction() {
@@ -50,16 +50,16 @@ class buckets extends controller {
 	}
 	
 	public function deleteAction() {
-		if (url::post()) {
+		if (sq::request()->isPost) {
 			sq::model('categories')
-				->where(url::post('id'))
+				->where(sq::request()->post('id'))
 				->delete();
 				
-			sq::redirect(sq::base().'buckets');
+			sq::response()->redirect(sq::base().'buckets');
 		}
 		
 		$this->layout->entry = sq::model('categories')
-			->where(url::get('id'))
+			->where(sq::request()->get('id'))
 			->read();
 			
 		$this->layout->content = sq::view('forms/delete');
