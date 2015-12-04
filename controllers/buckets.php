@@ -34,7 +34,11 @@ class buckets extends controller {
 		$this->layout->content = sq::view('forms/bucket');
 		$this->layout->actions = array(
 			'Actions',
-			'Delete this Bucket' => 'buckets/delete?id='.$category->id
+			'Delete this Bucket' => sq::route()->to(array(
+				'controller',
+				'action' => 'delete',
+				'id' => $category->id
+			))
 		);
 	}
 	
