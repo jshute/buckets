@@ -19,8 +19,8 @@ class site extends controller {
 	public function indexAction() {
 		$this->layout->entries = sq::model('entries')
 			->order('name', 'ASC')
-			->read()
-			->belongsTo('categories');
+			->belongsTo('categories')
+			->read();
 		
 		$this->layout->content = sq::view('search-list', array('id' => 'list'));
 		$this->layout->actions = array(
