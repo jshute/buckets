@@ -21,17 +21,11 @@ class buckets extends controller {
 	}
 	
 	public function editPostAction($categories) {
-		$validator = sq::validator($categories, array(
-			'name' => 'required'
-		));
-		
-		if ($validator->isValid) {
+		if ($categories->validate(array('name' => 'required'))) {
 			$categories->update();
-		} else {
-			sq::response()->review();
 		}
 		
-		sq::response()->redirect(sq::base().'buckets');
+		sq::response()->review();
 	}
 	
 	public function editGetAction($id) {	
