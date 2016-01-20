@@ -4,7 +4,7 @@ class site extends controller {
 	public $layout = 'layouts/column2';
 	
 	public function filter($action) {
-		if (sq::auth()->level == 'user' || $action == 'login' || $action == 'get-account' || $action == 'confirm-account') {
+		if (sq::auth()->level == 'user' || in_array($action, array('login', 'get-account', 'confirm-account', 'debug', 'error'))) {
 			return true;
 		} else {
 			$this->layout->content = sq::view('content/home');
