@@ -189,24 +189,15 @@ class site extends controller {
 			$hash = auth::hash($email);
 			
 			$user = sq::model('users')
-				->where(array('email' => $email))
-				->limit()
-				->read();
-				
-			$data = array(
-				'email' => $email,
-				'hashkey' => $hash,
-				'password' => auth::hash($password),
-				'first' => sq::request()->post('first'),
-				'last' => sq::request()->post('last'),
-				'level' => ''
-			);
-			
-			if (!isset($user->email)) {
-				$user->create($data);
-			} else {
-				$user->update($data);
-			}
+				->find(array('email' => $email))
+				->save(array(
+					'email' => $email,
+					'hash' => $hash,
+					'password' => auth::hash($password),
+					'first' => sq::request()->post('first'),
+					'last' => sq::request()->post('last'),
+					'level' => ''
+				));
 			
 			sq::mailer(array(
 				'to' => $email,
@@ -227,11 +218,9 @@ class site extends controller {
 		$this->layout->content = sq::view('get-account');
 	}
 	
-	public function confirmAccountAction() {
+	public function confirmAccountAction($hash) {
 		$user = sq::model('users')
-			->where(array('hashkey' => sq::request()->get('hash')))
-			->limit()
-			->read();
+			->find(array('hash' => $hash));
 			
 		$user->level = 'user';
 		$user->update();
